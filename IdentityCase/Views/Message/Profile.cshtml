@@ -1,0 +1,43 @@
+﻿@model LoginViewModel
+@{
+    ViewData["Title"] = "Profile";
+    Layout = "~/Views/Shared/_MessageLayout.cshtml";
+}
+
+
+<div class="container-fluid" style="padding:15px 10px">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title text-center mb-4">Kullanıcı Profil Bilgileri</h4>
+
+                    <div class="text-center mb-3">
+                        <i class="fa fa-user-circle fa-4x text-primary"></i>
+                    </div>
+
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>Ad</th>
+                            <td>@Model.Name</td>
+                        </tr>
+                        <tr>
+                            <th>Soyad</th>
+                            <td>@Model.Surname</td>
+                        </tr>
+                        <tr>
+                            <th>Email</th>
+                            <td>@Model.Email</td>
+                        </tr>
+                    </table>
+
+                    <div class="text-center">
+                        <a href="/Message/Inbox" class="btn btn-primary mt-3">
+                            Gelen Kutusuna Dön
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

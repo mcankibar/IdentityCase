@@ -1,0 +1,106 @@
+﻿
+@{
+    ViewData["Title"] = "TrashBox";
+    Layout = "~/Views/Shared/_MessageLayout.cshtml";
+}
+
+@using X.PagedList.Mvc.Core
+@model X.PagedList.IPagedList<Message>
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
+<style>
+    .email-list .table tr td {
+        vertical-align: middle;
+    }
+
+    .email-list .bi {
+        margin-right: 6px;
+    }
+
+    .email-list a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+        .email-list a:hover {
+            text-decoration: underline;
+        }
+
+    .unread {
+        background-color: #f9f9f9;
+        font-weight: 600;
+    }
+
+    .pagination-container {
+        display: flex;
+        justify-content: end;
+    }
+
+</style>
+
+<div class="container-fluid px-3 py-3">
+    <div class="card">
+        <div class="card-body">
+
+            <div class="toolbar mb-3">
+                <form class="d-flex" asp-action="TrashBox" asp-controller="Message">
+                    <input name="searchString" type="search" class="form-control me-2" placeholder="Arama" aria-label="Arama">
+                    <button class="btn btn-outline-success" type="submit">Ara</button>
+                </form>
+            </div>
+
+            <div class="email-list table-responsive">
+                <table class="table table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th style="width: 5%;"><input type="checkbox" /></th>
+                            <th style="width: 20%;">Konu</th>
+                            <th style="width: 20%;">Gönderici</th>
+                            <th style="width: 30%;">Alıcı</th>
+                            <th style="width: 25%;">Tarih</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr class="message-row @(item.IsRead ? "" : "unread")">
+                                <td class="text-center">
+                                </td>
+                                <td onclick="showMessageDetail(@item.MessageID)">
+
+                                    @item.Subject
+                                </td>
+                                <td>
+                                    <i class="bi bi-person-circle me-1"></i> @item.SenderEmail
+                                </td>
+                                <td>
+                                    <i class="bi bi-person-circle me-1"></i> @item.ReceiverEmail
+                                </td>
+                                <td class="text-end">
+                                    <i class="bi bi-calendar me-1"></i> @item.SendDate.ToString("g")
+                                </td>
+                                
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+          
+
+            <div class="pagination-container mt-3">
+                @Html.PagedListPager(Model, page => Url.Action("TrashBox", new { page }),
+                         new PagedListRenderOptions
+                {
+                    UlElementClasses = new[] { "pagination" },
+                    LiElementClasses = new[] { "page-item" },
+                    PageClasses = new[] { "page-link" }
+                })
+            </div>
+        </div>
+    </div>
+</div>
+

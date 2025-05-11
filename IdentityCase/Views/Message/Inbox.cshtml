@@ -1,0 +1,212 @@
+﻿@using X.PagedList.Mvc.Core
+@model X.PagedList.IPagedList<Message>
+
+@{
+    ViewData["Title"] = "Inbox";
+    Layout = "~/Views/Shared/_MessageLayout.cshtml";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
+<style>
+    .email-list .table tr td {
+        vertical-align: middle;
+    }
+
+    .email-list .bi {
+        margin-right: 6px;
+    }
+
+    .email-list a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+        .email-list a:hover {
+            text-decoration: underline;
+        }
+
+    .unread {
+        background-color: #f9f9f9;
+        font-weight: 600;
+    }
+
+    .pagination-container {
+        display: flex;
+        justify-content: end;
+    }
+
+    .message-row.read {
+        background-color: #f0f0f0; /* Gri arka plan */
+        color: #888; /* Soluk yazı */
+    }
+
+        .message-row.read td {
+            text-decoration: line-through; /* Çizili metin */
+        }
+
+    .message-row.unread {
+        background-color: #fff8e1; /* açık sarı zemin */
+        font-weight: bold;
+    }
+
+</style>
+
+<div class="container-fluid px-3 py-3">
+    <div class="card">
+        <div class="card-body">
+
+            <div class="toolbar mb-3">
+                <form class="d-flex" asp-action="Inbox" asp-controller="Message">
+                    <input name="searchString" type="search" class="form-control me-2" placeholder="Arama" aria-label="Arama">
+                    <button class="btn btn-outline-success" type="submit">Ara</button>
+                </form>
+            </div>
+
+            <div class="email-list table-responsive">
+                <table class="table table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th style="width: 5%;"><input type="checkbox" /></th>
+                            <th style="width: 45%;">Konu</th>
+                            <th style="width: 30%;">Gönderen</th>
+                            <th style="width: 20%;">Tarih</th>
+                            <th style="width: 15%;">Sil</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr class="message-row @(item.IsRead ? "" : "unread")">
+                                <td class="text-center">
+                                    <input type="checkbox" data-id="@item.MessageID" class="read-check" @(item.IsRead ? "checked" : "") />
+                                </td>
+                                <td onclick="showMessageDetail(@item.MessageID)">
+                                    <i class="bi @(item.IsRead ? "bi-envelope-open" : "bi-envelope") me-2"></i>
+                                    @item.Subject
+                                </td>
+                                <td>
+                                    <i class="bi bi-person-circle me-1"></i> @item.SenderEmail
+                                </td>
+                                <td class="text-end">
+                                    <i class="bi bi-calendar me-1"></i> @item.SendDate.ToString("g")
+                                </td>
+                                <td >
+                                    <button class="btn btn-danger btn-sm delete-btn d-flex align-items-center justify-content-center" data-id="@item.MessageID" style="width: 32px; height: 32px;">
+                                        <i class="bi bi-trash3-fill"></i>
+                                    </button>
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal fade" id="messageDetailModal" tabindex="-1" aria-labelledby="messageDetailLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="messageDetailLabel">Mesaj Detayı</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                        </div>
+                        <div class="modal-body" id="modalMessageContent">
+                            <!-- Partial burada yüklenecek -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pagination-container mt-3">
+                @Html.PagedListPager(Model, page => Url.Action("Inbox", new { page }),
+                         new PagedListRenderOptions
+                {
+                    UlElementClasses = new[] { "pagination" },
+                    LiElementClasses = new[] { "page-item" },
+                    PageClasses = new[] { "page-link" }
+                })
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+            function showMessageDetail(id) {
+                $.ajax({
+            url: '/Message/MessageDetail/' + id,
+            type: 'GET',
+            success: function (result) {
+                $('#modalMessageContent').html(result);
+                $('#messageDetailModal').modal('show');
+
+                // Mark as read
+               $.post("/Message/UpdateReadStatus", { id: id, isRead: true }, function () {
+            const row = $(`input[data-id='${id}']`).closest('.message-row');
+
+            // Sınıf ve ikon güncelle
+            row.removeClass('unread');
+            row.find("i.bi-envelope").removeClass("bi-envelope").addClass("bi-envelope-open");
+
+            // Checkbox işaretle
+            row.find(".read-check").prop("checked", true);
+        });
+            },
+            error: function () {
+                alert("Mesaj detayları alınırken bir hata oluştu.");
+            }
+        });
+        }
+
+                                     $('.read-check').on('change', function () {
+            const checkbox = $(this);
+            const id = checkbox.data('id');
+            const isChecked = checkbox.is(':checked');
+            const row = checkbox.closest('.message-row');
+            const icon = row.find('i.bi-envelope, i.bi-envelope-open');
+
+            $.post('/Message/UpdateReadStatus', { id: id, isRead: isChecked }, function () {
+                if (isChecked) {
+                    row.removeClass('unread');
+                    icon.removeClass('bi-envelope').addClass('bi-envelope-open');
+                } else {
+                    row.addClass('unread');
+                    icon.removeClass('bi-envelope-open').addClass('bi-envelope');
+                }
+            });
+        });
+
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).on('click', '.delete-btn', function () {
+            const messageId = $(this).data('id');
+            const row = $(this).closest('tr');
+
+            Swal.fire({
+                title: 'Emin misiniz?',
+                text: "Bu mesaj silinecek!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Evet, sil!',
+                cancelButtonText: 'İptal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post('/Message/DeleteMessage', { id: messageId }, function (data) {
+                        if (data.success) {
+                            row.remove(); // HTML tablodan satırı sil
+                            Swal.fire('Silindi!', data.message, 'success');
+                        } else {
+                            Swal.fire('Hata!', data.message, 'error');
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}
+

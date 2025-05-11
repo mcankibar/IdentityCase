@@ -1,0 +1,61 @@
+﻿@model IdentityCase.Entities.Message
+@{
+    ViewData["Title"] = "CreateMessage";
+    Layout = "~/Views/Shared/_MessageLayout.cshtml";
+}
+<div class="container-fluid" style="padding:15px 10px">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title text-center mb-4">Yeni Mesaj Oluştur</h4>
+
+                    <form asp-action="CreateMessage" method="post">
+                        <div class="form-group">
+                            <label for="ReceiverEmail">Alıcı Email</label>
+                            <input asp-for="ReceiverEmail" class="form-control" placeholder="Alıcı email adresini girin" />
+                            <span asp-validation-for="ReceiverEmail" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Subject">Konu</label>
+                            <input asp-for="Subject" class="form-control" placeholder="Mesaj konusu girin" />
+                            <span asp-validation-for="Subject" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="MessageDetail">Mesaj İçeriği</label>
+                            <textarea asp-for="MessageDetail" rows="6" class="form-control" placeholder="Mesajınızı yazın..."></textarea>
+                            <span asp-validation-for="MessageDetail" class="text-danger"></span>
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-success mt-3">Gönder</button>
+                            <a href="/Message/Inbox" class="btn btn-secondary mt-3">İptal</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
+@if (ViewBag.MessageSent != null)
+{
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Başarılı!',
+            text: '@Html.Raw(ViewBag.MessageSent)',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Tamam'
+        });
+    </script>
+}
+

@@ -1,0 +1,12 @@
+﻿@model Message
+
+<div>
+    <h5>@Model.Subject</h5>
+    <p><strong>Gönderen:</strong> @Model.SenderEmail</p>
+    <p>@Model.MessageDetail</p>
+    
+    <hr />
+    <p><strong>Tarih:</strong> @Model.SendDate.ToString("g")</p>
+</div>
+
+
